@@ -1,0 +1,32 @@
+version: '3.1'
+
+services:
+
+    mongodb:
+        image: 'mongo'
+        container_name: 'mongodb'
+    
+        # When there is no database inside /data/db, this will create a new
+        # MongoDB data directory, with an admin user 'root', with password 's3kr1t'
+        # and then create a database called 'todo-db'.
+        environment:
+          - MONGO_INITDB_ROOT_USERNAME=root
+          - MONGO_INITDB_ROOT_PASSWORD=s3kr1t
+          - MONGO_INITDB_DATABASE=mernauth
+    
+        # Mount the host folder 'mongo-volume' inside the docker instance 
+        # at /data/db - this is where Mongo will put its database files.
+        # As a result the database will persist when docker is stopped &
+        # restarted. 
+        #
+        # Also the init script init-mongo.js in this folder
+        # will be mounted inside the docker image, and will run after the
+        # above database initialisation environment is done. The script
+        # can be used to create a non-admin user.
+        volumes:
+          - ./mongo-volume:/data/db
+          - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    
+        # Map the Mongo ports inside Docker to these ports on the host
+        ports:
+          - '27017-27019:27017-27019'

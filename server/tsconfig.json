@@ -1,0 +1,14 @@
+{
+    "extends": "@tsconfig/node14/tsconfig.json",
+    "compilerOptions": {
+        "outDir": "dist/js",
+        "rootDir": "src",
+        "module": "commonjs", 
+        "strict": true, 
+        "esModuleInterop": true, /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+        "skipLibCheck": true, /* Skip type checking of declaration files. */
+        "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
+    },
+    "include": ["src/**/*"],
+    "exclude": ["src/types/*.ts", "node_modules", ".vscode"]
+}
