@@ -3,6 +3,6 @@ import authController from "../controllers/auth"
 
 const router = Router()
 
-router.get('/api/signup', authController)
+router.post('/api/signup', authController)
 
 export default router

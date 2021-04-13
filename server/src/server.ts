@@ -11,8 +11,6 @@ dotenv.config()
 
 const app: Express = express()
 
-// import routes
-app.use(authRoutes)
 
 // app middlewares
 app.use(morgan('dev'))          // output log lines of endpoints in dev mode
@@ -21,12 +19,18 @@ app.use(morgan('dev'))          // output log lines of endpoints in dev mode
 app.use(express.json())         // Parse JSON encoded bodies
 app.use(express.urlencoded({ extended: true }))   //Parse URL-encoded bodies
 
+
 //app.use(cors())    // allows all origins
 if ((process.env.NODE_ENV === 'development')) {
     app.use(cors({
         origin: 'http://localhost:3000'
     }))
 }
+
+
+// import routes
+app.use(authRoutes)
+
 
 const port = process.env.PORT || 8000
 
