@@ -44,6 +44,7 @@ const url: string = `mongodb://${dbhost}:${dbport}/${database}`
 const options: ConnectOptions = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    useCreateIndex:true,
     user: dbuser,
     pass: dbpass
 }

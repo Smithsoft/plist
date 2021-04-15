@@ -1,0 +1,8 @@
+{
+    "verbose": true,
+    "watch": "dist/js/server.js",
+    "trace-deprecation": true,
+    "execMap": {
+        "js": "node --trace-deprecation --trace-warnings"
+    }
+}
