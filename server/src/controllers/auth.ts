@@ -14,7 +14,9 @@ const signup = (req: Request, res: Response) => {
         }
     )
 
+    console.log("About to create new user")
     let newUser = new User({ name, email, password })
+    console.log("About to save new user")
     newUser.save(
         (err, success) => {
             if (err) {

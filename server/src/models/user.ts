@@ -54,9 +54,13 @@ const UserSchema: Schema<UserDocument, UserModel> = new Schema(
 // virtual fields
 UserSchema.virtual('password')
     .set(function(this: UserDocument, password: string){
+        console.log(`Calling password.set - ${this}`)
         this._password = password
         this.salt = this.makeSalt()
-        this.hashed_password = this.encryptPassword(password)
+        let encrypted = this.encryptPassword(password)
+        console.log(`Encrypted: ${encrypted}`)
+        this.hashed_password = encrypted
+        console.log(`After password.set - ${this}`)
     })
     .get(function(this: UserDocument): string {
         return this._password
@@ -66,7 +70,7 @@ UserSchema.virtual('password')
 UserSchema.methods.encryptPassword = function (this: UserDocument, plainText: string) {
     if (!plainText) return ''
     try {
-        crypto.createHmac('sha1', this.salt)
+        return crypto.createHmac('sha1', this.salt)
             .update(plainText)
             .digest('hex');
     } catch (err) {
