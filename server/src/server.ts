@@ -29,7 +29,7 @@ if ((process.env.NODE_ENV === 'development')) {
 
 
 // import routes
-app.use(authRoutes)
+app.use('/api', authRoutes)
 
 
 const port = process.env.PORT || 8000

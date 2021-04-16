@@ -54,7 +54,6 @@ const signUp = (req: Request, res: Response) => {
     )
     const account_activation: string = process.env.JWT_ACCOUNT_ACTIVATION!
     const email_account = process.env.EMAIL_USER
-    const email_password = process.env.EMAIL_PASS
     const client_url = process.env.CLIENT_URL
 
     const token = jwt.sign(
@@ -69,7 +68,7 @@ const signUp = (req: Request, res: Response) => {
         subject: "ACCOUNT ACTIVATION LINK",
         html: `
                   <h1>Please use the following link to activate your account</h1>
-                  <p>${client_url}/auth/activate/${token}</p>
+                  <p>${client_url}/api/account-activation/${token}</p>
                   <hr />
                   <p>This email may contain sensitive information</p>
                   <p>${client_url}</p>
@@ -115,4 +114,40 @@ const accountActivation = (req: Request, res: Response) => {
     }
 }
 
-export { signUp, accountActivation }
+const signIn = (req: Request, res: Response) => {
+    const { email, password } = req.body
+
+    User.findOne({ email }).exec(
+        (err, user) => {
+            if (err) {
+                return res.status(401).json({
+                    error: `Could not sign in: ${err}`
+                })
+            } else if (!user) {
+                return res.status(401).json({
+                    error: 'User not found'
+                })
+            }
+            if (!user.authenticate(password)) {
+                return res.status(401).json({
+                    error: 'Email or password did not match'
+                })
+            }
+            // generate a token and send to client
+            const secret = process.env.JWT_SECRET!
+            const token = jwt.sign({_id: user._id}, secret, {expiresIn: '7d'})
+            const { _id, name, email, role } = user
+            return res.json({
+                token,
+                user: { _id, name, email, role }
+            })
+        }
+    )
+    const account_activation: string = process.env.JWT_ACCOUNT_ACTIVATION!
+    const email_account = process.env.EMAIL_USER
+    const email_password = process.env.EMAIL_PASS
+    const client_url = process.env.CLIENT_URL
+
+}
+
+export { signIn, signUp, accountActivation }
