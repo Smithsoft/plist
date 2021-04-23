@@ -1,4 +1,4 @@
-import { Response, Request } from "express"
+import { Response, Request, RequestHandler } from "express"
 import User from "../models/user"
 import sendmail from "../helpers/sendmail"
 import * as jwt from "jsonwebtoken"
@@ -40,7 +40,7 @@ const signup = (req: Request, res: Response) => {
  * @param res 
  */
 
-const signUp = (req: Request, res: Response) => {
+const signUp:RequestHandler = (req, res) => {
     const { name, email, password } = req.body
 
     User.findOne({ email }).exec(
@@ -78,7 +78,7 @@ const signUp = (req: Request, res: Response) => {
     sendmail(req, res, emailData)
 }
 
-const accountActivation = (req: Request, res: Response) => {
+const accountActivation:RequestHandler = (req: Request, res: Response) => {
     const { token } = req.body
 
     const verifyCB: jwt.VerifyCallback = function (err: jwt.VerifyErrors|null, decoded: any) {
@@ -114,7 +114,7 @@ const accountActivation = (req: Request, res: Response) => {
     }
 }
 
-const signIn = (req: Request, res: Response) => {
+const signIn:RequestHandler = (req: Request, res: Response) => {
     const { email, password } = req.body
 
     User.findOne({ email }).exec(
@@ -134,6 +134,7 @@ const signIn = (req: Request, res: Response) => {
                 })
             }
             // generate a token and send to client
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const secret = process.env.JWT_SECRET!
             const token = jwt.sign({_id: user._id}, secret, {expiresIn: '7d'})
             const { _id, name, email, role } = user
@@ -143,11 +144,6 @@ const signIn = (req: Request, res: Response) => {
             })
         }
     )
-    const account_activation: string = process.env.JWT_ACCOUNT_ACTIVATION!
-    const email_account = process.env.EMAIL_USER
-    const email_password = process.env.EMAIL_PASS
-    const client_url = process.env.CLIENT_URL
-
 }
 
 export { signIn, signUp, accountActivation }

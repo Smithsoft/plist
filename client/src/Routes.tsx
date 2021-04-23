@@ -1,20 +1,11 @@
 import * as React from 'react'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
-import { RouteComponentProps } from 'react-router-dom'
 
 import App from './App'
 import Signup from './auth/Signup'
 
-type TParams = {
-    pathId: string;
-}
-
-
-type PropType = null | any
-type StateType = null | any
-
-class Routes extends React.Component<PropType, StateType> {
-    render() {
+class Routes extends React.Component {
+    render(): React.ReactElement {
         return (
             <BrowserRouter>
                 <Switch>

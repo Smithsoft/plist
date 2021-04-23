@@ -1,0 +1,5 @@
+*.scss
+.cache
+*.json
+*.md
+node_modules

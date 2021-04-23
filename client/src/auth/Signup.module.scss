@@ -1,0 +1,18 @@
+@import '../styles/variables.scss';
+
+@import '~bootstrap/scss/grid';
+
+.test-class-style {
+    text-decoration: dashed underline;
+}
+
+/* Author Bio and Author Name are just Bootstrap .row elements */
+.author-bio,
+.author-name {
+  @extend .row;
+}
+
+.signup-form {
+   @extend .col-md-6;
+   @extend .offset-md-3;
+}
