@@ -4,42 +4,6 @@ import sendmail from "../helpers/sendmail"
 import * as jwt from "jsonwebtoken"
 import { Credentials } from "./../types/credentials"
 
-/**
-const signup = (req: Request, res: Response) => {
-    const { name, email, password } = req.body
-
-    User.findOne({email}).exec(
-        (err, user) => {
-            if (user) {
-                return res.status(400).json({
-                    error: 'Email is taken'
-                })
-            }
-        }
-    )
-
-    console.log("About to create new user")
-    let newUser = new User({ name, email, password })
-    console.log("About to save new user")
-    newUser.save(
-        (err, success) => {
-            if (err) {
-                console.log('SIGNUP ERROR', err)
-                return res.status(400).json({
-                    error: err
-                })
-            }
-            res.json({
-                message: 'Signup success! Please signin'
-            })
-        }
-    )
-}
- * 
- * @param req 
- * @param res 
- */
-
 const signUp:RequestHandler = (req, res) => {
     const { name, email, password } = req.body
 
@@ -68,7 +32,7 @@ const signUp:RequestHandler = (req, res) => {
         subject: "ACCOUNT ACTIVATION LINK",
         html: `
                   <h1>Please use the following link to activate your account</h1>
-                  <p>${client_url}/api/account-activation/${token}</p>
+                  <p>${client_url}/auth/activate/${token}</p>
                   <hr />
                   <p>This email may contain sensitive information</p>
                   <p>${client_url}</p>
@@ -125,7 +89,7 @@ const signIn:RequestHandler = (req: Request, res: Response) => {
                 })
             } else if (!user) {
                 return res.status(401).json({
-                    error: 'User not found'
+                    error: 'User with that email does not exist. Please sign up.'
                 })
             }
             if (!user.authenticate(password)) {

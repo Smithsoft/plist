@@ -1,8 +1,9 @@
 // /helpers/sendmail.ts
 import { Request, Response } from "express"
 import * as nodeMailer from "nodemailer"
+import Mail from "nodemailer/lib/mailer"
 
-const sendmail = (req: Request, res: Response, emailData: Record<string, any>) => {
+const sendmail = (req: Request, res: Response, emailData: Mail.Options):void => {
     const transport = nodeMailer.createTransport(
         {
             host: "smtp.gmail.com",
@@ -18,7 +19,7 @@ const sendmail = (req: Request, res: Response, emailData: Record<string, any>) =
             },
         }
     )
-    let result = transport.sendMail(emailData)
+    transport.sendMail(emailData)
         .then(
             (mailinfo) => {
                 console.log(`Message sent: ${mailinfo.response}`)

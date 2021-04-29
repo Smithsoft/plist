@@ -1,4 +1,5 @@
 @import './variables.scss';
+@import './fonts.scss';
 
 // @import '~bootstrap/scss/bootstrap';
 @import '~bootstrap/scss/root';
@@ -16,7 +17,7 @@
 @import '~bootstrap/scss/input-group';
 // @import '~bootstrap/scss/custom-forms';
 @import '~bootstrap/scss/nav';
-// @import '~bootstrap/scss/navbar';
+@import '~bootstrap/scss/navbar';
 // @import '~bootstrap/scss/breadcrumb';
 // @import '~bootstrap/scss/card';
 // @import '~bootstrap/scss/pagination';

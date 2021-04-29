@@ -6,15 +6,16 @@ import { ToastContainer, toast } from 'react-toastify'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Col from 'react-bootstrap/Col'
-import { Redirect } from 'react-router-dom'
-import { isAuth } from './helpers'
+import { AuthenticationResponse } from '../types/AuthenticationResponse'
 
-const Signup: React.FC = () => {
+import { authenticate, isAuth } from './helpers'
+import { Redirect } from 'react-router-dom'
+
+const Signin: React.FC = () => {
     const [values, setValues] = useState({
-        name: 'Sarah',
         email: 'sarah@storybridge.org',
         password: '123456',
-        buttonText: 'Submit'
+        buttonText: 'Sign In'
     })
 
     const handleChange = (name: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,32 +25,29 @@ const Signup: React.FC = () => {
 
     const clickSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault()
-        setValues({ ...values, buttonText: 'Submitting...' })
-        axios({
-            method: 'POST',
-            url: `${process.env.REACT_APP_API}/signup`,
-            data: { name, email, password }
-        })
+        setValues({ ...values, buttonText: 'Signing in...' })
+        const url = `${process.env.REACT_APP_API}/signin`
+        axios
+            .post<AuthenticationResponse>(url, { email, password })
             .then((response) => {
-                console.log('SIGNUP SUCCESS')
-                setValues({ ...values, name: '', email: '', password: '', buttonText: 'Submitted' })
-                toast.success(response.data.message)
+                console.log('SIGNIN SUCCESS')
+                authenticate(response, () => {
+                    // save the response (user, token)
+                    setValues({ ...values, email: '', password: '', buttonText: 'Signed In' })
+                    toast.success(`Hey ${response.data.user.name}, welcome back!`)
+                })
             })
             .catch((error) => {
-                console.log('SIGNUP ERROR', error.response.data)
-                setValues({ ...values, buttonText: 'Submit' })
+                console.log('SIGNIN ERROR', error.response.data)
                 toast.error(error.response.data.error)
+                setValues({ ...values, buttonText: 'Sign In' })
             })
     }
 
-    const { name, email, password, buttonText } = values
+    const { email, password, buttonText } = values
 
-    const signupForm = () => (
+    const signinForm = () => (
         <Form>
-            <Form.Group controlId="formGroupName">
-                <Form.Label>Name</Form.Label>
-                <Form.Control onChange={handleChange('name')} value={name} type="text" />
-            </Form.Group>
             <Form.Group controlId="formGroupEmail">
                 <Form.Label>Email</Form.Label>
                 <Form.Control onChange={handleChange('email')} value={email} type="email" />
@@ -69,11 +67,11 @@ const Signup: React.FC = () => {
             <Col md={{ span: 6, offset: 3 }}>
                 <ToastContainer />
                 {isAuth() ? <Redirect to="/" /> : null}
-                <h1>Signup</h1>
-                {signupForm()}
+                <h1>Sign In</h1>
+                {signinForm()}
             </Col>
         </Layout>
     )
 }
 
-export default Signup
+export default Signin

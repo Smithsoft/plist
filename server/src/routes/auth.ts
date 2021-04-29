@@ -10,3 +10,4 @@ router.post('/signup', userSignupValidator, runValidation, signUp)
 router.post('/account-activation', accountActivation)
 
 export default router
+

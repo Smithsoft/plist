@@ -1,7 +1,7 @@
-import React from 'react';
+import React from 'react'
 import Layout from './core/Layout'
 
-const App:React.FC = () => {
+const App: React.FC = () => {
     return (
         <Layout>
             <h1>Hello React!</h1>
@@ -9,4 +9,4 @@ const App:React.FC = () => {
     )
 }
 
-export default App;
+export default App
