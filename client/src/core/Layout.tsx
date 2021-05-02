@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react'
 import { Link, withRouter } from 'react-router-dom'
 import { RouteComponentProps } from 'react-router'
 import { isAuth, signout } from '../auth/helpers'
-import { History, LocationState } from 'history'
+import { User } from '../types/User'
+import { FaUserCircle } from 'react-icons/fa'
 
 export type ValidPath = '/' | '/signin' | '/signup'
 export type ValidKeys = 'home' | 'signin' | 'signup'
@@ -12,14 +13,6 @@ const eventKeys: EventKeys = {
     '/': 'home',
     '/signup': 'signup',
     '/signin': 'signin'
-}
-
-// interface LayoutComponentProps extends RouteComponentProps {
-//     history: History<LocationState>
-// }
-
-type State = {
-    activeKeyName: ValidKeys
 }
 
 class Layout extends Component<RouteComponentProps> {
@@ -57,6 +50,22 @@ class Layout extends Component<RouteComponentProps> {
         )
     }
 
+    userProfile(loggedInUser: User): React.ReactElement {
+        return (
+            <li className="nav-item">
+                <span className="nav-link" style={{ cursor: 'pointer', color: '#fff' }}>
+                    <FaUserCircle color="#fff" />
+                    {' ' + loggedInUser.name}
+                </span>
+            </li>
+        )
+    }
+
+    /**
+     * Returns a fragment containing the links rendered for when
+     * a user is not logged in. These links allow signin, for an
+     * already registered user; and signup for new users.
+     */
     signinLinks(): React.ReactElement {
         return (
             <Fragment>
@@ -75,6 +84,7 @@ class Layout extends Component<RouteComponentProps> {
     }
 
     navigation(): React.ReactElement {
+        const loggedInDetails = isAuth()
         return (
             <ul className="nav nav-tabs bg-primary">
                 <li className="nav-item">
@@ -82,8 +92,9 @@ class Layout extends Component<RouteComponentProps> {
                         Home
                     </Link>
                 </li>
-                {!isAuth() && this.signinLinks()}
-                {isAuth() && this.signoutLink()}
+                {!loggedInDetails && this.signinLinks()}
+                {loggedInDetails && this.userProfile(loggedInDetails as User)}
+                {loggedInDetails && this.signoutLink()}
             </ul>
         )
     }

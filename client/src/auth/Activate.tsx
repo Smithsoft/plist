@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../core/Layout'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
-
-import Button from 'react-bootstrap/Button'
-import { Col, Jumbotron } from 'react-bootstrap'
 import { RouteComponentProps } from 'react-router'
 
 import jwt from 'jsonwebtoken'
@@ -56,26 +53,26 @@ const Activate: React.FC<PropType> = ({ match }) => {
     const displayButton = () => {
         if (show) {
             return (
-                <Button variant="outline-primary" onClick={clickHandler}>
+                <button className="btn btn-outline-primary" onClick={clickHandler}>
                     Activate Account
-                </Button>
+                </button>
             )
         }
     }
 
     const activationLink = () => (
-        <Jumbotron>
+        <div className="text-center">
             <h1 className="p-5 text-center">Hey {name}, ready to activate your account?</h1>
             <p>{displayButton()}</p>
-        </Jumbotron>
+        </div>
     )
 
     return (
         <Layout>
-            <Col md={{ span: 6, offset: 3 }}>
+            <div className="col-md-6 offset-md-3">
                 <ToastContainer />
                 {activationLink()}
-            </Col>
+            </div>
         </Layout>
     )
 }

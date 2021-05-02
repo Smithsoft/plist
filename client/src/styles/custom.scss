@@ -1,5 +1,4 @@
 @import './variables.scss';
-@import './fonts.scss';
 
 // @import '~bootstrap/scss/bootstrap';
 @import '~bootstrap/scss/root';
@@ -39,3 +38,4 @@
 // // components takes precedence over default bootstrap styles
 
 @import '~react-toastify/scss/main';
+@import './fonts.scss';

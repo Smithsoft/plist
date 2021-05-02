@@ -5,6 +5,8 @@ import App from './App'
 import Activate from './auth/Activate'
 import Signin from './auth/Signin'
 import Signup from './auth/Signup'
+import Private from './core/Private'
+import PrivateRoute from './auth/PrivateRoute'
 
 class Routes extends React.Component {
     render(): React.ReactElement {
@@ -15,6 +17,8 @@ class Routes extends React.Component {
                     <Route path="/signup" exact component={Signup} />
                     <Route path="/signin" exact component={Signin} />
                     <Route path="/auth/activate/:token" exact component={Activate} />
+
+                    <PrivateRoute path="/private" exact component={Private} />
                 </Switch>
             </BrowserRouter>
         )

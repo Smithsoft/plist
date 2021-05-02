@@ -1,30 +1,41 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Layout from '../core/Layout'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 
-import Button from 'react-bootstrap/Button'
-import Form from 'react-bootstrap/Form'
-import Col from 'react-bootstrap/Col'
 import { Redirect } from 'react-router-dom'
 import { isAuth } from './helpers'
 
-const Signup: React.FC = () => {
-    const [values, setValues] = useState({
+type PropType = unknown
+
+type StateType = {
+    name: string
+    email: string
+    password: string
+    buttonText: string
+}
+
+type ChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => void
+
+class Signup extends React.Component<PropType, StateType> {
+    state = {
         name: 'Sarah',
         email: 'sarah@storybridge.org',
         password: '123456',
         buttonText: 'Submit'
-    })
-
-    const handleChange = (name: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(`Handling: ${name} - ${event}`)
-        setValues({ ...values, [name]: event.target.value })
     }
 
-    const clickSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
+    handleChange(name: string): ChangeHandler {
+        return (event: React.ChangeEvent<HTMLInputElement>) => {
+            console.log(`Handling: ${name} - ${event}`)
+            this.setState({ ...this.state, [name]: event.target.value })
+        }
+    }
+
+    clickSubmit(event: React.MouseEvent<HTMLButtonElement>): void {
         event.preventDefault()
-        setValues({ ...values, buttonText: 'Submitting...' })
+        const { name, email, password } = this.state
+        this.setState({ ...this.state, buttonText: 'Submitting...' })
         axios({
             method: 'POST',
             url: `${process.env.REACT_APP_API}/signup`,
@@ -32,48 +43,77 @@ const Signup: React.FC = () => {
         })
             .then((response) => {
                 console.log('SIGNUP SUCCESS')
-                setValues({ ...values, name: '', email: '', password: '', buttonText: 'Submitted' })
+                this.setState({ ...this.state, name: '', email: '', password: '', buttonText: 'Submitted' })
                 toast.success(response.data.message)
             })
             .catch((error) => {
                 console.log('SIGNUP ERROR', error.response.data)
-                setValues({ ...values, buttonText: 'Submit' })
+                this.setState({ ...this.state, buttonText: 'Submit' })
                 toast.error(error.response.data.error)
             })
     }
 
-    const { name, email, password, buttonText } = values
+    signupForm(): JSX.Element {
+        const { name, email, password, buttonText } = this.state
+        return (
+            <form>
+                <div className="form-group">
+                    <label htmlFor="signupFormName" className="text-muted">
+                        Name
+                    </label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        onChange={this.handleChange('name')}
+                        value={name}
+                        id="signupFormName"
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="signupFormEmail" className="text-muted">
+                        Email
+                    </label>
+                    <input
+                        type="email"
+                        className="form-control"
+                        onChange={this.handleChange('email')}
+                        value={email}
+                        id="signupFormEmail"
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="signupFormPassword" className="text-muted">
+                        Password
+                    </label>
+                    <input
+                        type="password"
+                        className="form-control"
+                        onChange={this.handleChange('password')}
+                        value={password}
+                        id="signupFormPassword"
+                    />
+                </div>
+                <div>
+                    <button className="btn btn-primary" onClick={(e) => this.clickSubmit(e)}>
+                        {buttonText}
+                    </button>
+                </div>
+            </form>
+        )
+    }
 
-    const signupForm = () => (
-        <Form>
-            <Form.Group controlId="formGroupName">
-                <Form.Label>Name</Form.Label>
-                <Form.Control onChange={handleChange('name')} value={name} type="text" />
-            </Form.Group>
-            <Form.Group controlId="formGroupEmail">
-                <Form.Label>Email</Form.Label>
-                <Form.Control onChange={handleChange('email')} value={email} type="email" />
-            </Form.Group>
-            <Form.Group controlId="formGroupPassword">
-                <Form.Label>Password</Form.Label>
-                <Form.Control onChange={handleChange('password')} value={password} type="password" />
-            </Form.Group>
-            <Button variant="primary" type="submit" onClick={clickSubmit}>
-                {buttonText}
-            </Button>
-        </Form>
-    )
-
-    return (
-        <Layout>
-            <Col md={{ span: 6, offset: 3 }}>
-                <ToastContainer />
-                {isAuth() ? <Redirect to="/" /> : null}
-                <h1>Signup</h1>
-                {signupForm()}
-            </Col>
-        </Layout>
-    )
+    render(): JSX.Element {
+        return (
+            <Layout>
+                <div className="col-md-6 offset-md-3">
+                    <ToastContainer />
+                    {isAuth() ? <Redirect to="/" /> : null}
+                    <h1>Signup</h1>
+                    {this.signupForm()}
+                </div>
+            </Layout>
+        )
+    }
 }
 
 export default Signup
