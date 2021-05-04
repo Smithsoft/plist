@@ -6,6 +6,13 @@ type PropType = {
     component: FC
 } & RouteProps
 
+/**
+ * Component that wraps another component to produce a BrowserRouter
+ * component which only renders if the user is logged in. If not logged
+ * in then the browser is redirected to the signin component.
+ * @param param0 Component and Route parameters as props.
+ * @returns Route wrapping the given component
+ */
 const PrivateRoute: React.FC<PropType> = ({ component, ...rest }) => (
     <Route
         {...rest}

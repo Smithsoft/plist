@@ -44,7 +44,8 @@ class Signin extends React.Component<PropType, StateType> {
                 authenticate(response, () => {
                     // save the response (user, token)
                     this.setState({ ...this.state, email: '', password: '', buttonText: 'Signed In' })
-                    toast.success(`Hey ${response.data.user.name}, welcome back!`)
+                    //toast.success(`Hey ${response.data.user.name}, welcome back!`)
+                    if (isAuth() && (isAuth as User).role === 'admin')
                 })
             })
             .catch((error) => {

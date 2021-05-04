@@ -4,15 +4,16 @@ import { RouteComponentProps } from 'react-router'
 import { isAuth, signout } from '../auth/helpers'
 import { User } from '../types/User'
 import { FaUserCircle } from 'react-icons/fa'
-
-export type ValidPath = '/' | '/signin' | '/signup'
-export type ValidKeys = 'home' | 'signin' | 'signup'
+export type ValidPath = '/' | '/signin' | '/signup' | '/admin' | '/private'
+export type ValidKeys = 'home' | 'signin' | 'signup' | 'admin' | 'private'
 export type EventKeys = Record<ValidPath, ValidKeys>
 
 const eventKeys: EventKeys = {
     '/': 'home',
     '/signup': 'signup',
-    '/signin': 'signin'
+    '/signin': 'signin',
+    '/admin': 'admin',
+    '/private': 'private'
 }
 
 class Layout extends Component<RouteComponentProps> {
@@ -53,10 +54,20 @@ class Layout extends Component<RouteComponentProps> {
     userProfile(loggedInUser: User): React.ReactElement {
         return (
             <li className="nav-item">
-                <span className="nav-link" style={{ cursor: 'pointer', color: '#fff' }}>
+                <Link to="/private" className="nav-link" style={this.isActive('admin')}>
                     <FaUserCircle color="#fff" />
                     {' ' + loggedInUser.name}
-                </span>
+                </Link>
+            </li>
+        )
+    }
+
+    adminLink(): React.ReactElement {
+        return (
+            <li className="nav-item" style={this.isActive('admin')}>
+                <Link to="/admin" className="nav-link">
+                    Admin
+                </Link>
             </li>
         )
     }
@@ -84,7 +95,8 @@ class Layout extends Component<RouteComponentProps> {
     }
 
     navigation(): React.ReactElement {
-        const loggedInDetails = isAuth()
+        const login = isAuth()
+        const user = login as User
         return (
             <ul className="nav nav-tabs bg-primary">
                 <li className="nav-item">
@@ -92,9 +104,10 @@ class Layout extends Component<RouteComponentProps> {
                         Home
                     </Link>
                 </li>
-                {!loggedInDetails && this.signinLinks()}
-                {loggedInDetails && this.userProfile(loggedInDetails as User)}
-                {loggedInDetails && this.signoutLink()}
+                {!login && this.signinLinks()}
+                {user?.role === 'admin' && this.adminLink()}
+                {user?.role === 'subscriber' && this.userProfile(user)}
+                {login && this.signoutLink()}
             </ul>
         )
     }
