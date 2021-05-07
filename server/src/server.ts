@@ -1,12 +1,12 @@
 import express, { Express } from "express"
 import morgan from "morgan"
-
-import authRoutes from "./routes/auth"
 import cors from "cors"
 
 import * as dotenv from 'dotenv'
 import mongoose, { ConnectOptions } from "mongoose"
 
+// Setup all process.env.* vars - this must be done before any
+// imports of modules that rely on such vars.
 dotenv.config()
 
 const app: Express = express()
@@ -29,8 +29,11 @@ if ((process.env.NODE_ENV === 'development')) {
 
 
 // import routes
-app.use('/api', authRoutes)
+import authRoutes from "./routes/auth"
+import userRoutes from "./routes/user"
 
+app.use('/api', authRoutes)
+app.use('/api', userRoutes)
 
 const port = process.env.PORT || 8000
 
@@ -40,7 +43,7 @@ const dbpass: string = process.env.DBPASSWORD || 'pass'
 const dbhost: string = process.env.DBHOST || 'localhost'
 const dbport: string = process.env.DBPORT || '27017'
 
-const url: string = `mongodb://${dbhost}:${dbport}/${database}`
+const url = `mongodb://${dbhost}:${dbport}/${database}`
 const options: ConnectOptions = {
     useNewUrlParser: true,
     useUnifiedTopology: true,

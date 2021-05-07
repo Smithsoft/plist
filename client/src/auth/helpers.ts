@@ -53,7 +53,7 @@ export const authenticate = (response: AxiosResponse<AuthenticationResponse>, ne
 }
 
 /** Access user info from local storage */
-export const isAuth = (): User | undefined | boolean => {
+export const isAuth = (): User | undefined | false => {
     if (window !== undefined) {
         const cookieChecked = getCookie('token')
         if (cookieChecked) {

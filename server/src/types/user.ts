@@ -1,9 +1,13 @@
-import { Document } from "mongoose"
+export interface User extends UserInformation
+{
+    password: string;
+    hashed_password: string;
+    resetPasswordLink: string;
+    salt: string
+}
 
-export interface User extends Document {
+export interface UserInformation {
     name: string;
     email: string;
-    hashed_password: string;
     role: string;
-    resetPasswordLink: string;
 }

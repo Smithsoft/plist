@@ -6,9 +6,7 @@ import { ToastContainer, toast } from 'react-toastify'
 import { AuthenticationResponse } from '../types/AuthenticationResponse'
 
 import { authenticate, isAuth } from './helpers'
-import { Redirect } from 'react-router-dom'
-
-type PropType = unknown
+import { Redirect, RouteComponentProps, withRouter } from 'react-router-dom'
 
 type StateType = {
     email: string
@@ -18,7 +16,10 @@ type StateType = {
 
 type ChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => void
 
-class Signin extends React.Component<PropType, StateType> {
+// RouteComponentProps - needed here to get the history object
+// https://stackoverflow.com/questions/51152417/react-with-typescript-property-push-does-not-exist-on-type-history
+
+class Signin extends React.Component<RouteComponentProps, StateType> {
     state = {
         email: 'sarah@storybridge.org',
         password: '123456',
@@ -44,8 +45,8 @@ class Signin extends React.Component<PropType, StateType> {
                 authenticate(response, () => {
                     // save the response (user, token)
                     this.setState({ ...this.state, email: '', password: '', buttonText: 'Signed In' })
-                    //toast.success(`Hey ${response.data.user.name}, welcome back!`)
-                    if (isAuth() && (isAuth as User).role === 'admin')
+                    const u = isAuth()
+                    u && this.props.history.push(u.role === 'admin' ? '/admin' : '/private')
                 })
             })
             .catch((error) => {
@@ -105,4 +106,4 @@ class Signin extends React.Component<PropType, StateType> {
     }
 }
 
-export default Signin
+export default withRouter(Signin)

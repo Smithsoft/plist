@@ -36,8 +36,11 @@ docker-compose -f "docker-compose.yml" up -d --build
 * Use the VSCode `package.json` integration in the node.js extension to run 
     * NPM SCRIPTS > server/package.json > start - server
 
+----
+
 ![screenshot of running the server via npm scripts](doc/npm-scripts-vscode.png)
 
+----
 * Or run from the command line:
 
 ```bash

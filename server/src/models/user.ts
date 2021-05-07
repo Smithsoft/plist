@@ -1,6 +1,6 @@
 import { Document, Model, model, Schema } from "mongoose"
 import * as crypto from "crypto"
-import { User } from "./../types/user"
+import { User, UserInformation } from "./../types/user"
 
 // https://medium.com/@agentwhs/complete-guide-for-typescript-for-mongoose-for-node-js-8cc0a7e470c1
 
@@ -11,13 +11,22 @@ interface UserDocument extends User, Document {
     authenticate(plainText: string): boolean;
     encryptPassword(plainText: string): string;
     makeSalt(): string;
+    info(): UserInformation;
 }
 
 export interface UserModel extends Model<UserDocument> {
     findUser(id: string): Promise<UserDocument>
+    password: string
 }
 
-// user schema
+/** 
+ * Sanitized version of the user document POJO which does not have any
+ * password information, suitable for export to client.
+ */
+export type UserDetails = Pick<UserDocument, '_id'>
+
+// user schema - note use of select to protect password info
+// - https://mongoosejs.com/docs/api.html#query_Query-select
 const UserSchema: Schema<UserDocument, UserModel> = new Schema(
     {
         name: {
@@ -36,15 +45,20 @@ const UserSchema: Schema<UserDocument, UserModel> = new Schema(
         hashed_password: {
             type: String,
             required: true,
+            select: false,
         },
-        salt: String,
+        salt: {
+            type: String,
+            select: false,
+        },
         role: {
             type: String,
             default: 'subscriber'
         },
         resetPasswordLink: {
             data: String,
-            default: ''
+            default: '',
+            select: false,
         },
     }, {
         timestamps: true
@@ -54,10 +68,12 @@ const UserSchema: Schema<UserDocument, UserModel> = new Schema(
 // virtual fields
 UserSchema.virtual('password')
     .set(function(this: UserDocument, password: string){
-        console.log(`Calling password.set - ${this}`)
+        console.log(`Calling password.set - ${this} - pass: ${password}`)
         this._password = password
-        this.salt = this.makeSalt()
-        let encrypted = this.encryptPassword(password)
+        const salt = this.makeSalt()
+        console.log(`Salt: ${salt}`)
+        this.salt = salt
+        const encrypted = this.encryptPassword(password)
         console.log(`Encrypted: ${encrypted}`)
         this.hashed_password = encrypted
         console.log(`After password.set - ${this}`)
@@ -69,17 +85,28 @@ UserSchema.virtual('password')
 // helper object methods
 UserSchema.methods.encryptPassword = function (this: UserDocument, plainText: string) {
     if (!plainText) return ''
+    console.log(plainText)
+    console.log(typeof plainText)
     try {
         return crypto.createHmac('sha1', this.salt)
             .update(plainText)
             .digest('hex');
     } catch (err) {
+        console.log(`Error: ${err}`)
         return ''
     }
 }
 
 UserSchema.methods.makeSalt = function (): string {
     return Math.round(new Date().valueOf() * Math.random()) + ''
+}
+
+UserSchema.methods.info = function (this: UserDocument): UserInformation {
+    return {
+        name: this.name,
+        email: this.email,
+        role: this.role
+    }
 }
 
 UserSchema.methods.authenticate = function (this: UserDocument, plainText: string): boolean {

@@ -3,12 +3,15 @@ import User from "../models/user"
 import sendmail from "../helpers/sendmail"
 import * as jwt from "jsonwebtoken"
 import { Credentials } from "./../types/credentials"
+import expressJwt from "express-jwt"
+import { AdminMWRequest } from "./types/auth"
+import { NoParams, ResBody } from "./types/user"
 
 const signUp:RequestHandler = (req, res) => {
     const { name, email, password } = req.body
 
     User.findOne({ email }).exec(
-        (err, user) => {
+        (_err, user) => {
             if (user) {
                 return res.status(400).json({
                     error: 'Email is taken'
@@ -45,7 +48,8 @@ const signUp:RequestHandler = (req, res) => {
 const accountActivation:RequestHandler = (req: Request, res: Response) => {
     const { token } = req.body
 
-    const verifyCB: jwt.VerifyCallback = function (err: jwt.VerifyErrors|null, decoded: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const verifyCB: jwt.VerifyCallback = function (err: jwt.VerifyErrors|null, _decoded: any) {
         if (err) {
             console.log('JWT VERIFY IN ACCOUNT ACTIVATION ERROR', err);
             return res.status(401).json({
@@ -56,7 +60,8 @@ const accountActivation:RequestHandler = (req: Request, res: Response) => {
         const credentials = jwt.decode(token) as Credentials;
         const user = new User(credentials);
 
-        user.save((err, user) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        user.save((err, _user) => {
             if (err) {
                 console.log('SAVE USER IN ACCOUNT ACTIVATION ERROR', err);
                 return res.status(401).json({
@@ -70,6 +75,7 @@ const accountActivation:RequestHandler = (req: Request, res: Response) => {
     }
 
     if (token) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         jwt.verify(token, process.env.JWT_ACCOUNT_ACTIVATION!, verifyCB)
     } else {
         return res.json({
@@ -81,7 +87,7 @@ const accountActivation:RequestHandler = (req: Request, res: Response) => {
 const signIn:RequestHandler = (req: Request, res: Response) => {
     const { email, password } = req.body
 
-    User.findOne({ email }).exec(
+    User.findOne({ email }).select('+hashed_password +salt').exec(
         (err, user) => {
             if (err) {
                 return res.status(401).json({
@@ -92,6 +98,8 @@ const signIn:RequestHandler = (req: Request, res: Response) => {
                     error: 'User with that email does not exist. Please sign up.'
                 })
             }
+            console.log('Authenticating user:')
+            console.log(user)
             if (!user.authenticate(password)) {
                 return res.status(401).json({
                     error: 'Email or password did not match'
@@ -110,4 +118,31 @@ const signIn:RequestHandler = (req: Request, res: Response) => {
     )
 }
 
-export { signIn, signUp, accountActivation }
+// HS256 - HMAC with SHA 256 is default JWT - algorithm now is required
+const requireSignIn = expressJwt({
+    secret: (process.env.JWT_SECRET as string),
+    algorithms: ['HS256']
+})
+
+const adminMiddleware: RequestHandler = (req, res, next) => {
+
+    // User injected by the auth middleware
+    const userId = req.user?._id
+    
+    User.findById(userId).exec((err, user) => {
+        if (err || !user) {
+            return res.status(400).json({
+                error: 'User not found'
+            })
+        }
+        if (user.role !== 'admin') {
+            return res.status(400).json({
+                error: 'Admin resource. Access denied.'
+            })
+        }
+        req.profile = user
+        next()
+    })
+}
+
+export { signIn, signUp, requireSignIn, adminMiddleware, accountActivation }
