@@ -72,3 +72,16 @@ export const signout = (next: () => void): void => {
     removeLocalStorage('user')
     next()
 }
+
+export const updateUser = (response: AxiosResponse<User>, next: () => void): void => {
+    console.log('UPDATE USER IN LOCAL STORAGE - HELPERS', response)
+    if (typeof window !== 'undefined') {
+        const user = localStorage.getItem('user')
+        if (user) {
+            let auth = JSON.parse(user)
+            auth = { ...auth, ...response.data }
+            localStorage.setItem('user', JSON.stringify(auth))
+        }
+    }
+    next()
+}

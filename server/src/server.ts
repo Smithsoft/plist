@@ -1,4 +1,4 @@
-import express, { Express } from "express"
+import express, { Express, NextFunction, Request, Response } from "express"
 import morgan from "morgan"
 import cors from "cors"
 
@@ -31,9 +31,14 @@ if ((process.env.NODE_ENV === 'development')) {
 // import routes
 import authRoutes from "./routes/auth"
 import userRoutes from "./routes/user"
+import { errorMiddleware } from "./validators"
+
 
 app.use('/api', authRoutes)
 app.use('/api', userRoutes)
+
+// express error handling middleware - must be last in stack
+app.use(errorMiddleware)
 
 const port = process.env.PORT || 8000
 

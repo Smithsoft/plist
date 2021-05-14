@@ -5,6 +5,7 @@ import { requireSignIn, adminMiddleware } from '../controllers/auth'
 const router = Router()
 
 router.get('/user/:id', requireSignIn, readDetails)
-router.put('/user/update', requireSignIn, adminMiddleware, updateDetails)
+router.put('/user/update', requireSignIn, updateDetails)
+router.put('/admin/update', requireSignIn, adminMiddleware, updateDetails)
 
 export default router

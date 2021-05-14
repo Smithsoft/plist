@@ -54,6 +54,20 @@ The result should look as follows (screenshot from VS Code terminal)
 
 ### Run the Client locally
 
-* Use the VSCode `package.json` 
+* Use the VSCode `package.json` as for the server above but select
+    * NPM SCRIPTS > client/package.json > start - client
+    * Or run from the command line:
+
+```bash
+cd client
+npm start
+```
+
 # References
 
+* [wannago.io Typescript Express](https://wanago.io/2018/12/17/typescript-express-error-handling-validation/)
+* [Udemy Course: MERN Stack Web Development](https://www.udemy.com/course/mern-stack/)
+
+> MERN Stack Web Development with Ultimate Authentication
+> Build Ultimate Authentication Boilerplate Project with 
+> MERN Stack from Scratch to Digital Ocean Cloud Servers

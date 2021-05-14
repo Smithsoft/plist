@@ -1,10 +1,10 @@
-import React, { FC } from 'react'
-import { Route, Redirect, RouteProps } from 'react-router-dom'
+import React from 'react'
+import { Route, Redirect, RouteProps, RouteComponentProps } from 'react-router-dom'
 import { User } from '../types/User'
 import { isAuth } from './helpers'
 
 type PropType = {
-    component: FC
+    component: React.ComponentType<RouteComponentProps>
 } & RouteProps
 
 /**
@@ -20,7 +20,7 @@ const AdminRoute: React.FC<PropType> = ({ component, ...rest }) => (
         {...rest}
         render={(props) =>
             isAuth() && (isAuth() as User).role === 'admin' ? (
-                component(props)
+                React.createElement(component, props)
             ) : (
                 <Redirect
                     to={{

@@ -3,7 +3,7 @@ import { Link, withRouter } from 'react-router-dom'
 import { RouteComponentProps } from 'react-router'
 import { isAuth, signout } from '../auth/helpers'
 import { User } from '../types/User'
-import { FaUserCircle } from 'react-icons/fa'
+import { FaUserCircle, FaUserShield } from 'react-icons/fa'
 export type ValidPath = '/' | '/signin' | '/signup' | '/admin' | '/private'
 export type ValidKeys = 'home' | 'signin' | 'signup' | 'admin' | 'private'
 export type EventKeys = Record<ValidPath, ValidKeys>
@@ -54,7 +54,7 @@ class Layout extends Component<RouteComponentProps> {
     userProfile(loggedInUser: User): React.ReactElement {
         return (
             <li className="nav-item">
-                <Link to="/private" className="nav-link" style={this.isActive('admin')}>
+                <Link to="/private" className="nav-link" style={this.isActive('private')}>
                     <FaUserCircle color="#fff" />
                     {' ' + loggedInUser.name}
                 </Link>
@@ -62,11 +62,12 @@ class Layout extends Component<RouteComponentProps> {
         )
     }
 
-    adminLink(): React.ReactElement {
+    adminLink(loggedInUser: User): React.ReactElement {
         return (
-            <li className="nav-item" style={this.isActive('admin')}>
-                <Link to="/admin" className="nav-link">
-                    Admin
+            <li className="nav-item">
+                <Link to="/admin" className="nav-link" style={this.isActive('admin')}>
+                    <FaUserShield color="#fff" />
+                    {' ' + loggedInUser.name}
                 </Link>
             </li>
         )
@@ -105,7 +106,7 @@ class Layout extends Component<RouteComponentProps> {
                     </Link>
                 </li>
                 {!login && this.signinLinks()}
-                {user?.role === 'admin' && this.adminLink()}
+                {user?.role === 'admin' && this.adminLink(user)}
                 {user?.role === 'subscriber' && this.userProfile(user)}
                 {login && this.signoutLink()}
             </ul>

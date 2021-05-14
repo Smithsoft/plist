@@ -1,11 +1,12 @@
 import React from 'react'
 import Layout from '../core/Layout'
-import axios, { AxiosRequestConfig } from 'axios'
+import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 
 import { Redirect, RouteComponentProps } from 'react-router-dom'
-import { getCookie, isAuth, signout } from '../auth/helpers'
+import { getCookie, isAuth, signout, updateUser } from '../auth/helpers'
 import { User } from '../types/User'
+import { ErrorResponse } from '../types/ErrorResponse'
 
 type StateType = {
     role: string
@@ -27,13 +28,28 @@ class Private extends React.Component<RouteComponentProps, StateType> {
     }
 
     componentDidMount(): void {
-        this.loadProfile()
-    }
+        console.log('PRIVATE COMPONENT >>> mount <<< #####')
 
-    loadProfile(): void {
         const login = isAuth()
         const user = login as User
         const token = getCookie('token')
+
+        console.log('User: ', login)
+        console.log('Token: ', token)
+        //
+        if (login && token) {
+            this.loadProfile(user, token)
+        } else {
+            console.log('PRIVATE PROFILE UPDATE ISSUE - token or user missing')
+            console.log('Login: ', login)
+            console.log('Token: ', token?.substr(0, 10))
+            signout(() => {
+                this.props.history.push('/')
+            })
+        }
+    }
+
+    loadProfile(user: User, token: string): void {
         const conf: AxiosRequestConfig = {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -46,9 +62,11 @@ class Private extends React.Component<RouteComponentProps, StateType> {
                 const { role, name, email } = response.data
                 this.setState({ ...this.state, role, name, email })
             })
-            .catch((error) => {
-                console.log('PRIVATE PROFILE UPDATE ERROR', error.response.data.console.error)
-                if (error.response.status == 401) {
+            .catch((error: AxiosError<ErrorResponse>) => {
+                const serverError = error.response?.data.error ?? 'Unknown'
+                console.log('PRIVATE PROFILE UPDATE ERROR: ', serverError)
+                if (error.response?.status == 401) {
+                    // expired token - sign user out to clear invalid token
                     signout(() => {
                         this.props.history.push('/')
                     })
@@ -65,22 +83,38 @@ class Private extends React.Component<RouteComponentProps, StateType> {
 
     clickSubmit(event: React.MouseEvent<HTMLButtonElement>): void {
         event.preventDefault()
-        const { name, email, password } = this.state
+        const token = getCookie('token')
+        const { name, password } = this.state
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
         this.setState({ ...this.state, buttonText: 'Submitting...' })
-        axios({
-            method: 'POST',
-            url: `${process.env.REACT_APP_API}/signup`,
-            data: { name, email, password }
-        })
+        const url = `${process.env.REACT_APP_API}/user/update`
+        const data = { name, password }
+        axios
+            .put(url, data, config)
             .then((response) => {
-                console.log('SIGNUP SUCCESS')
-                this.setState({ ...this.state, name: '', email: '', password: '', buttonText: 'Submitted' })
-                toast.success(response.data.message)
+                console.log('PRIVATE PROFILE UPDATE SUCCESS: ', response)
+                updateUser(response, () => {
+                    this.setState({ ...this.state, buttonText: 'Submitted' })
+                    toast.success('Profile updated successfully')
+                })
             })
-            .catch((error) => {
-                console.log('SIGNUP ERROR', error.response.data)
+            .catch((error: AxiosError<ErrorResponse>) => {
+                const serverError = error.response?.data.error ?? 'Unknown'
+                console.log('PRIVATE PROFILE UPDATE ERROR: ', serverError)
                 this.setState({ ...this.state, buttonText: 'Submit' })
-                toast.error(error.response.data.error)
+                if (error.response?.status == 401) {
+                    // expired token - sign user out to clear invalid token
+                    toast.error('Login expired. Please sign in again.')
+                    signout(() => {
+                        this.props.history.push('/')
+                    })
+                } else {
+                    toast.error(serverError)
+                }
             })
     }
 
@@ -134,6 +168,7 @@ class Private extends React.Component<RouteComponentProps, StateType> {
     }
 
     render(): JSX.Element {
+        console.log('PRIVATE COMPONENT RENDER #####')
         return (
             <Layout>
                 <div className="col-md-6 offset-md-3">
