@@ -9,6 +9,7 @@ import Admin from './core/Admin'
 import Private from './core/Private'
 import PrivateRoute from './auth/PrivateRoute'
 import AdminRoute from './auth/AdminRoute'
+import Forgot from './auth/Forgot'
 
 class Routes extends React.Component {
     render(): React.ReactElement {
@@ -21,6 +22,7 @@ class Routes extends React.Component {
                     <Route path="/auth/activate/:token" exact component={Activate} />
                     <AdminRoute path="/admin" exact component={Admin} />
                     <PrivateRoute path="/private" exact component={Private} />
+                    <Route path="/auth/password/forgot" exact component={Forgot} />
                 </Switch>
             </BrowserRouter>
         )

@@ -6,6 +6,7 @@ import { User } from '../types/User'
 import { FaUserCircle, FaUserShield } from 'react-icons/fa'
 export type ValidPath = '/' | '/signin' | '/signup' | '/admin' | '/private'
 export type ValidKeys = 'home' | 'signin' | 'signup' | 'admin' | 'private'
+
 export type EventKeys = Record<ValidPath, ValidKeys>
 
 const eventKeys: EventKeys = {
@@ -16,6 +17,8 @@ const eventKeys: EventKeys = {
     '/private': 'private'
 }
 
+type ElementNames = 'link' | 'background'
+
 class Layout extends Component<RouteComponentProps> {
     activeKeyName: ValidKeys = 'home'
 
@@ -24,6 +27,14 @@ class Layout extends Component<RouteComponentProps> {
             return { color: '#000' }
         } else {
             return { color: '#fff' }
+        }
+    }
+
+    isActiveBg(path: ValidKeys): React.CSSProperties {
+        if (path === this.activeKeyName) {
+            return { backgroundColor: '#fff' }
+        } else {
+            return {}
         }
     }
 
@@ -53,9 +64,9 @@ class Layout extends Component<RouteComponentProps> {
 
     userProfile(loggedInUser: User): React.ReactElement {
         return (
-            <li className="nav-item">
+            <li className="nav-item" style={this.isActiveBg('private')}>
                 <Link to="/private" className="nav-link" style={this.isActive('private')}>
-                    <FaUserCircle color="#fff" />
+                    <FaUserCircle style={this.isActive('private')} />
                     {' ' + loggedInUser.name}
                 </Link>
             </li>
@@ -64,9 +75,9 @@ class Layout extends Component<RouteComponentProps> {
 
     adminLink(loggedInUser: User): React.ReactElement {
         return (
-            <li className="nav-item">
+            <li className="nav-item" style={this.isActiveBg('private')}>
                 <Link to="/admin" className="nav-link" style={this.isActive('admin')}>
-                    <FaUserShield color="#fff" />
+                    <FaUserShield style={this.isActive('admin')} />
                     {' ' + loggedInUser.name}
                 </Link>
             </li>
@@ -81,12 +92,12 @@ class Layout extends Component<RouteComponentProps> {
     signinLinks(): React.ReactElement {
         return (
             <Fragment>
-                <li className="nav-item">
+                <li className="nav-item" style={this.isActiveBg('signin')}>
                     <Link to="/signin" className="nav-link" style={this.isActive('signin')}>
                         Signin
                     </Link>
                 </li>
-                <li className="nav-item">
+                <li className="nav-item" style={this.isActiveBg('signup')}>
                     <Link to="/signup" className="nav-link" style={this.isActive('signup')}>
                         Signup
                     </Link>
@@ -100,7 +111,7 @@ class Layout extends Component<RouteComponentProps> {
         const user = login as User
         return (
             <ul className="nav nav-tabs bg-primary">
-                <li className="nav-item">
+                <li className="nav-item" style={this.isActiveBg('home')}>
                     <Link to="/" className="nav-link" style={this.isActive('home')}>
                         Home
                     </Link>

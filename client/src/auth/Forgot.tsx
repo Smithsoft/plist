@@ -1,16 +1,16 @@
 import React from 'react'
 import Layout from '../core/Layout'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 
 import { AuthenticationResponse } from '../types/AuthenticationResponse'
 
 import { authenticate, isAuth } from './helpers'
 import { Redirect, RouteComponentProps, withRouter } from 'react-router-dom'
+import { UpdateResponse } from '../types/UpdateResponse'
 
 type StateType = {
     email: string
-    password: string
     buttonText: string
 }
 
@@ -19,10 +19,9 @@ type ChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => void
 // RouteComponentProps - needed here to get the history object
 // https://stackoverflow.com/questions/51152417/react-with-typescript-property-push-does-not-exist-on-type-history
 
-class Signin extends React.Component<RouteComponentProps, StateType> {
+class Forgot extends React.Component<RouteComponentProps, StateType> {
     state = {
         email: '',
-        password: '',
         buttonText: 'Sign In'
     }
 
@@ -35,28 +34,25 @@ class Signin extends React.Component<RouteComponentProps, StateType> {
 
     clickSubmit(event: React.MouseEvent<HTMLButtonElement>): void {
         event.preventDefault()
-        this.setState({ ...this.state, buttonText: 'Signing in...' })
-        const url = `${process.env.REACT_APP_API}/signin`
-        const { email, password } = this.state // destructure to shorthand properties
+        this.setState({ ...this.state, buttonText: 'Submitting...' })
+        const url = `${process.env.REACT_APP_API}/forgot-password`
+        const { email } = this.state // destructure to shorthand properties
         axios
-            .post<AuthenticationResponse>(url, { email, password })
+            .put<UpdateResponse>(url, { email })
             .then((response) => {
                 console.log('SIGNIN SUCCESS')
-                authenticate(response, () => {
-                    // save the response (user, token)
-                    this.setState({ ...this.state, email: '', password: '', buttonText: 'Signed In' })
-                    const u = isAuth()
-                    u && this.props.history.push(u.role === 'admin' ? '/admin' : '/private')
-                })
+                toast.success(response.data.message)
             })
-            .catch((error) => {
-                console.log('SIGNIN ERROR', error.response.data)
-                toast.error(error.response.data.error)
-                this.setState({ ...this.state, buttonText: 'Sign In' })
+            .catch((error: Error | AxiosError<UpdateResponse>) => {
+                if (axios.isAxiosError(error)) {
+                    console.log('SIGNIN ERROR', error.response?.data)
+                    toast.error(error.response?.data)
+                    this.setState({ ...this.state, buttonText: 'Sign In' })
+                }
             })
     }
 
-    signinForm(): JSX.Element {
+    passwordForgotForm(): JSX.Element {
         return (
             <form>
                 <div className="form-group">
@@ -69,18 +65,6 @@ class Signin extends React.Component<RouteComponentProps, StateType> {
                         onChange={this.handleChange('email')}
                         value={this.state.email}
                         id="signupFormEmail"
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="signupFormPassword" className="text-muted">
-                        Password
-                    </label>
-                    <input
-                        type="password"
-                        className="form-control"
-                        onChange={this.handleChange('password')}
-                        value={this.state.password}
-                        id="signupFormPassword"
                     />
                 </div>
                 <div>
@@ -97,13 +81,12 @@ class Signin extends React.Component<RouteComponentProps, StateType> {
             <Layout>
                 <div className="col-md-6 offset-md-3">
                     <ToastContainer />
-                    {isAuth() ? <Redirect to="/" /> : null}
-                    <h1>Sign In</h1>
-                    {this.signinForm()}
+                    <h1>Forgot password</h1>
+                    {this.passwordForgotForm()}
                 </div>
             </Layout>
         )
     }
 }
 
-export default withRouter(Signin)
+export default withRouter(Forgot)

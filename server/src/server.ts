@@ -1,4 +1,4 @@
-import express, { Express, NextFunction, Request, Response } from "express"
+import express, { Express } from "express"
 import morgan from "morgan"
 import cors from "cors"
 
@@ -56,8 +56,6 @@ const options: ConnectOptions = {
     user: dbuser,
     pass: dbpass
 }
-
-console.log({ 'url:': url, 'options:': options})
 
 mongoose.connect(url, options)
     .then(() => {
