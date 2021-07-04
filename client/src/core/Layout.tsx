@@ -17,8 +17,6 @@ const eventKeys: EventKeys = {
     '/private': 'private'
 }
 
-type ElementNames = 'link' | 'background'
-
 class Layout extends Component<RouteComponentProps> {
     activeKeyName: ValidKeys = 'home'
 

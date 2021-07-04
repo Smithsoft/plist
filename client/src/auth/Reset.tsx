@@ -13,6 +13,11 @@ type TParams = { token: string }
 
 type PropType = RouteComponentProps<TParams>
 
+interface ForgotPasswordPayload {
+    _id: string
+    name: string
+}
+
 type StateType = {
     name: string
     token: string
@@ -28,15 +33,18 @@ class Reset extends React.Component<PropType, StateType> {
         buttonText: 'Submit'
     }
 
-    constructor(props: PropType) {
-        super(props)
-        this.handleChange = this.handleChange.bind(this)
-    }
-
     componentDidMount(): void {
         const token = this.props.match.params.token
-        const { name } = jwt.decode(token) as { name: string }
-        this.setState({ ...this.state, name, token })
+        if (token) {
+            const { name } = jwt.decode(token) as ForgotPasswordPayload
+            if (name) {
+                this.setState({ ...this.state, name, token })
+            } else {
+                toast.error('Bad link: try again')
+            }
+        } else {
+            toast.error('Bad link: check email again')
+        }
     }
 
     handleChange(): ChangeHandler {
