@@ -2,40 +2,60 @@ import React from 'react'
 import Layout from '../core/Layout'
 import axios, { AxiosError } from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
+import { RouteComponentProps } from 'react-router-dom'
 import { UpdateResponse } from '../types/UpdateResponse'
 
-type PropType = unknown
-
-type StateType = {
-    email: string
-    buttonText: string
-}
+import jwt from 'jsonwebtoken'
 
 type ChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => void
 
-class Forgot extends React.Component<PropType, StateType> {
+type TParams = { token: string }
+
+type PropType = RouteComponentProps<TParams>
+
+type StateType = {
+    name: string
+    token: string
+    newPassword: string
+    buttonText: string
+}
+
+class Reset extends React.Component<PropType, StateType> {
     state = {
-        email: '',
+        name: '',
+        token: '',
+        newPassword: '',
         buttonText: 'Submit'
     }
 
-    handleChange(name: string): ChangeHandler {
-        return (event: React.ChangeEvent<HTMLInputElement>) => {
-            console.log(`Handling: ${name} - ${event}`)
-            this.setState({ ...this.state, [name]: event.target.value })
+    constructor(props: PropType) {
+        super(props)
+        this.handleChange = this.handleChange.bind(this)
+    }
+
+    componentDidMount(): void {
+        const token = this.props.match.params.token
+        const { name } = jwt.decode(token) as { name: string }
+        this.setState({ ...this.state, name, token })
+    }
+
+    handleChange(): ChangeHandler {
+        return (e: React.ChangeEvent<HTMLInputElement>) => {
+            this.setState({ ...this.state, newPassword: e.target.value })
         }
     }
 
     clickSubmit(event: React.MouseEvent<HTMLButtonElement>): void {
         event.preventDefault()
         this.setState({ ...this.state, buttonText: 'Submitting...' })
-        const url = `${process.env.REACT_APP_API}/forgot-password`
-        const { email } = this.state // destructure to shorthand properties
+        const url = `${process.env.REACT_APP_API}/reset-password`
         axios
-            .put<UpdateResponse>(url, { email })
+            .put<UpdateResponse>(url, {
+                newPassword: this.state.newPassword,
+                resetPasswordLink: this.state.token
+            })
             .then((response) => {
                 console.log('SIGNIN SUCCESS')
-                // eg: "Check your email for new password reset link"
                 toast.success(response.data.message)
                 this.setState({ ...this.state, buttonText: 'Submit' })
             })
@@ -50,19 +70,21 @@ class Forgot extends React.Component<PropType, StateType> {
             })
     }
 
-    passwordForgotForm(): JSX.Element {
+    resetPasswordForm(): JSX.Element {
         return (
             <form>
                 <div className="form-group">
-                    <label htmlFor="signupFormEmail" className="text-muted">
-                        Email
+                    <label htmlFor="resetPasswordForm" className="text-muted">
+                        Password
                     </label>
                     <input
-                        type="email"
+                        type="password"
                         className="form-control"
-                        onChange={this.handleChange('email')}
-                        value={this.state.email}
-                        id="signupFormEmail"
+                        onChange={this.handleChange()}
+                        value={this.state.newPassword}
+                        id="resetPasswordForm"
+                        placeholder="Type new password"
+                        required
                     />
                 </div>
                 <div>
@@ -79,12 +101,12 @@ class Forgot extends React.Component<PropType, StateType> {
             <Layout>
                 <div className="col-md-6 offset-md-3">
                     <ToastContainer />
-                    <h1>Forgot password</h1>
-                    {this.passwordForgotForm()}
+                    <h1>Hey {this.state.name}, type your new password</h1>
+                    {this.resetPasswordForm()}
                 </div>
             </Layout>
         )
     }
 }
 
-export default Forgot
+export default Reset

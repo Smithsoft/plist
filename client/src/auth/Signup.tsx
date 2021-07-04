@@ -3,7 +3,7 @@ import Layout from '../core/Layout'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 
-import { Redirect } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import { isAuth } from './helpers'
 
 type PropType = unknown
@@ -98,6 +98,10 @@ class Signup extends React.Component<PropType, StateType> {
                         {buttonText}
                     </button>
                 </div>
+                <br />
+                <Link to="/auth/password/forgot" className="btn btn-sm btn-outline-danger">
+                    Forgot Password
+                </Link>
             </form>
         )
     }

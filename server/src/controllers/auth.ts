@@ -18,6 +18,7 @@ const signUp:RequestHandler = (req, res) => {
             }
         }
     )
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const account_activation: string = process.env.JWT_ACCOUNT_ACTIVATION!
     const email_account = process.env.EMAIL_USER
     const client_url = process.env.CLIENT_URL
@@ -157,7 +158,7 @@ const forgotPassword: RequestHandler = (req, res) => {
         const client_url = process.env.CLIENT_URL
     
         const token = jwt.sign(
-            { _id: user._id },
+            { _id: user._id, name: user.name },
             account_activation,
             { expiresIn: "10m" }
         )

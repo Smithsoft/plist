@@ -6,7 +6,7 @@ import { ToastContainer, toast } from 'react-toastify'
 import { AuthenticationResponse } from '../types/AuthenticationResponse'
 
 import { authenticate, isAuth } from './helpers'
-import { Redirect, RouteComponentProps, withRouter } from 'react-router-dom'
+import { Link, Redirect, RouteComponentProps, withRouter } from 'react-router-dom'
 
 type StateType = {
     email: string
@@ -100,6 +100,10 @@ class Signin extends React.Component<RouteComponentProps, StateType> {
                     {isAuth() ? <Redirect to="/" /> : null}
                     <h1>Sign In</h1>
                     {this.signinForm()}
+                    <br />
+                    <Link to="/auth/password/forgot" className="btn btn-sm btn-outline-danger">
+                        Forgot Password
+                    </Link>
                 </div>
             </Layout>
         )
